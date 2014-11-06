@@ -1,0 +1,576 @@
+* About
+
+This is an Org-mode document that serves as my Emacs configuration file.  The standard =init.el= file simply loads the Org babel and org-tangle packages needed to "tangle" this file into a usable form.
+
+=emacs-config.org= is processed to a Lisp file called =emacs-config.el=, and =emacs-config.el= is what Emacs actually uses to configure settings.
+
+
+* Setup for using package
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives
+  '("melpa" . "https://melpa.org/packages/") t)
+(setq package-enable-at-startup nil)
+(package-initialize)
+#+END_SRC
+
+  
+
+* Basic usability
+
+** Recent files
+
+#+BEGIN_SRC emacs-lisp
+(require 'recentf)
+(recentf-mode 1)
+#+END_SRC
+
+
+** Inhibit splash screen, tool bars, and scroll bars
+
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-splash-screen t)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+** Tabs, line wrap, sentences, and paragraphs  
+
+#+BEGIN_SRC emacs-lisp
+(global-visual-line-mode t)
+(setq sentence-end-double-space nil)
+(show-paren-mode 1) ; highlight matching pairs of parentheses
+
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq indent-line-function 'insert-tab)
+
+#+END_SRC
+
+** Line numbering
+
+#+BEGIN_SRC emacs-lisp
+(require 'relative-line-numbers)
+#+END_SRC 
+
+
+** Initial settings for frames (windows)
+
+Start with maximum vertical height.
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'initial-frame-alist '(fullscreen . fullheight))
+(add-to-list 'default-frame-alist '(fullscreen . fullheight))
+#+END_SRC
+
+Start with a horiontal width of 100 characters.
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'initial-frame-alist '(width . 100))
+(add-to-list 'default-frame-alist '(width . 100))
+#+END_SRC
+
+Only show the left fringe, and make it small.
+
+#+BEGIN_SRC emacs-lisp
+(fringe-mode '(2 . 0))
+#+END_SRC
+
+ 
+** Set backup directories
+
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+#+END_SRC
+
+** Set path from shell
+
+#+BEGIN_SRC emacs-lisp
+(require 'exec-path-from-shell)
+(exec-path-from-shell-initialize)
+#+END_SRC
+
+
+* Evil mode
+
+** Evil-leader settings
+
+First we setup ~evil-leader~ mode.  I've found that the <SPC> (spacebar) makes a good leader.
+
+#+BEGIN_SRC emacs-lisp
+(require 'evil-leader)
+(evil-leader/set-leader "<SPC>")
+(global-evil-leader-mode)
+#+END_SRC
+
+
+** Evil nerd commenter and matchit
+
+#+BEGIN_SRC emacs-lisp
+(require 'evil-nerd-commenter)
+(require 'evil-matchit)
+(global-evil-matchit-mode 1)
+#+END_SRC 
+
+
+** Evil related settings
+
+#+BEGIN_SRC emacs-lisp
+(require 'evil)
+(setq evil-want-fine-undo t)
+(setq evil-cross-lines t)
+(evil-mode 1)
+#+END_SRC
+
+Work around a bug with how evil interacts with electric-indent.
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-insert-state-map [remap newline] nil)
+(define-key evil-insert-state-map [remap newline-and-indent] nil)
+#+END_SRC
+
+** Movement by visual lines
+
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+(define-key evil-normal-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+(define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
+(define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
+
+#+END_SRC
+
+    
+* Org mode settings
+
+** Basic org mode settings
+
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-indented t)
+(setq org-startup-truncated nil)
+(setq org-M-RET-may-split-line nil)
+(setq org-use-speed-commands t)
+(setq org-cycle-separator-lines 1)
+(setq org-insert-heading-respect-content t)
+(setq org-catch-invisible-edits 'show) ; reveal folded headline when trying to edit
+#+END_SRC
+
+Use C-c C-x C-v to toggle inline images off/on
+
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-with-inline-images t)
+#+END_SRC
+
+
+** Archive and refile 
+
+#+BEGIN_SRC emacs-lisp
+(setq org-archive-location "~/Dropbox/org-files/archive.org::From %s")
+(setq org-default-notes-file "~/Dropbox/org-files/refile.org")
+
+(setq org-refile-use-outline-path 'file)
+(setq org-refile-targets '((org-agenda-files :level . 1)))
+#+END_SRC
+
+
+** Agenda
+
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-window-setup 'current-window)
+(setq org-agenda-restore-windows-after-quit t)
+(setq org-agenda-files (list "~/Dropbox/org-files/work.org"
+                             "~/Dropbox/org-files/home.org"
+                             "~/Dropbox/org-files/refile.org"))
+#+END_SRC 
+
+
+** Capture 
+
+#+BEGIN_SRC emacs-lisp
+(defun pmm/iso-hhmm-timestamp ()
+    "Returns an ISO 8601 format timestamp."
+    (format-time-string "%FT%R"))
+
+(setq org-capture-templates '(
+  ("t" "todo" entry (file+headline "~/Dropbox/org-files/refile.org" "Tasks")
+    "* TODO %?  %i%u\n")
+  ("n" "note" item (file "~/Dropbox/notes/notes.txt")
+    "- %? [%(pmm/iso-hhmm-timestamp)]\n")))
+#+END_SRC
+
+
+** Org babel
+
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+  'org-babel-load-languages
+  '((emacs-lisp . t)
+    (R . t)
+    (python . t)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'org-src-lang-modes
+             '("r" . ess-mode))
+
+#+END_SRC
+
+
+** Org src mode
+
+#+BEGIN_SRC emacs-lisp
+(setq org-src-fontify-natively t)
+(setq org-src-preserve-indentation t)
+(setq org-src-tab-acts-natively t)
+#+END_SRC
+
+
+** Org LaTeX
+
+#+BEGIN_SRC emacs-lisp
+(global-evil-matchit-mode 1)
+
+#+END_SRC
+ 
+
+* OS specific stuff 
+
+** Mac specific
+
+#+BEGIN_SRC emacs-lisp
+(when (memq window-system '(mac ns))  ;; Mac specific settings
+     (setq default-input-method "MacOSX")
+     (setq mac-emulate-three-button-mouse t)
+     ;(setq ns-use-srgb-colorspace t)  ;; sRGB color on Mac
+     (setq ns-right-command-modifier 'meta) ;; remap right command key to meta
+     (setq ns-function-modifier 'hyper) ;; function to hyper (H)
+    )
+
+#+END_SRC
+
+
+
+* File modes
+
+** Markdown/pandoc mode
+
+#+BEGIN_SRC emacs-lisp
+(require 'pandoc-mode)
+(add-hook 'markdown-mode-hook 'turn-on-pandoc)
+#+END_SRC
+
+
+** Python
+
+#+BEGIN_SRC emacs-lisp
+(require 'python)
+#+END_SRC
+
+
+** R / ESS
+
+#+BEGIN_SRC emacs-lisp
+(require 'ess-site)
+(setq ess-font-lock-mode t)
+(setq ess-indent-level 4)
+(setq ess-arg-function-offset 4)
+(setq ess-else-offset 4)
+(setq ess-use-tracebug nil)
+
+#+END_SRC
+
+** AucTeX
+
+#+BEGIN_SRC emacs-lisp
+(setq TeX-parse-self t) ; enable parse on load (can be slow)
+(setq TeX-auto-save t)
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+(setq reftex-plug-into-AUCTeX t)
+(add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+(setq server-use-tcp t)
+(setq TeX-source-correlate-start-server t)
+#+END_SRC
+
+Set PDF viewer depending on OS:
+
+#+BEGIN_SRC emacs-lisp
+(setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
+(cond 
+  ((eq system-type 'darwin)
+    (setq TeX-view-program-list
+     '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b  %n %o %b"))))
+  ((eq system-type 'gnu/linux)
+    (setq TeX-view-program-list
+     '(("PDF Viewer" "okular --unique %o#src:%n%a")))))
+#+END_SRC
+
+
+* Key bindings 
+
+** Increase / decrease font size
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
+#+END_SRC
+
+** Evil leader key bindings
+*** Evil nerd commenter (should come first?)
+
+#+BEGIN_SRC emacs-lisp
+(evil-leader/set-key
+    "ci" 'evilnc-comment-or-uncomment-lines
+    "cl" 'evilnc-quick-comment-or-uncomment-to-the-line
+    "cc" 'evilnc-copy-and-comment-lines
+    "cp" 'evilnc-comment-or-uncomment-paragraphs
+    "cr" 'comment-or-uncomment-region
+    "cv" 'evilnc-toggle-invert-comment-line-by-line
+)
+#+END_SRC
+
+
+*** Global
+
+#+BEGIN_SRC emacs-lisp
+(evil-leader/set-key
+    "x" 'execute-extended-command  ; acts like M-x
+    "w" 'save-buffer
+    "k" 'kill-buffer
+    "b" 'switch-to-buffer
+    "e" 'find-file
+    "t" 'transpose-chars
+    "C" 'evil-ace-jump-char-mode
+    "F" 'evil-ace-jump-word-mode
+    "L" 'evil-ace-jump-line-mode
+    "a" 'org-agenda
+    "n" 'org-capture
+    "#" 'relative-line-numbers-mode
+    "2" 'er/expand-region
+    "\\" 'split-window-right
+    "-" 'split-window-below
+    "0" 'delete-window
+    "1" 'delete-other-windows
+    "[" 'other-window
+    "]" 'other-window
+    "V" 'clone-indirect-buffer
+)
+#+END_SRC
+
+*** Org mode
+
+#+BEGIN_SRC emacs-lisp
+(evil-leader/set-key-for-mode 'org-mode
+    "t" 'org-todo
+    "T" 'org-show-todo-tree
+    "v" (lambda () (interactive)(org-tree-to-indirect-buffer)(other-window 1))
+    "z" 'org-narrow-to-subtree   
+    "Z" 'widen                  
+    "*" 'org-toggle-heading
+    "SPC" 'org-global-cycle
+    "h" 'org-backward-heading-same-level
+    "H" 'org-forward-heading-same-level
+    "e" 'org-export-dispatch
+)
+
+#+END_SRC
+
+
+The following allows us to enter and leave org-src-mode with ~<leader>'~
+#+BEGIN_SRC emacs-lisp
+
+(evil-leader/set-key-for-mode 'org-mode
+    "'" 'org-edit-src-code)
+
+(add-hook 'org-src-mode-hook '(lambda ()
+    (evil-leader/set-key "'" 'org-edit-src-exit)))
+#+END_SRC
+ 
+
+** Evil mode key bindings
+
+*** My special sauce for org-mode with evil
+
+#+BEGIN_SRC emacs-lisp
+(defun pmm/org-insert-heading-backward ()
+  (interactive)
+  (org-backward-heading-same-level 0)
+  (org-insert-heading-respect-content)
+  (evil-append nil))
+
+(defun pmm/org-insert-heading-forward ()
+  (interactive)
+  (end-of-line)
+  (org-insert-heading-respect-content)
+  (evil-append nil))
+
+(defun pmm/org-insert-item-backward ()
+  (interactive)
+  (org-backward-element)
+  (org-insert-item)
+  (evil-append nil))
+
+(defun pmm/org-insert-item-forward ()
+  (interactive)
+  (end-of-line)
+  (org-show-entry)
+  (show-children)
+  (if (not (org-at-item-p))
+      (insert "\n")
+    (org-insert-item))
+  (evil-append nil))
+
+(defun pmm/org-insert-element-backward ()
+  (interactive)
+  (cond ( (org-at-item-p) (pmm/org-insert-item-backward))
+        ( (org-at-heading-p) (pmm/org-insert-heading-backward))
+        ( t (evil-open-above nil))))
+
+#+END_SRC
+
+*** Org mode related
+
+#+BEGIN_SRC emacs-lisp
+(evil-define-key 'normal org-mode-map
+    ;"O" 'pmm/org-insert-element-backward
+    "o" 'pmm/org-insert-item-forward
+    "$" 'org-end-of-line
+    "^" 'org-beginning-of-line
+    "<" 'org-metaleft
+    ">" 'org-metaright
+    "gk" 'outline-up-heading
+    "gj" 'outline-next-visible-heading
+    ;(kbd "TAB") 'org-cycle
+    )
+#+END_SRC
+ 
+** Keychord and God mode
+
+#+BEGIN_SRC emacs-lisp
+(require 'key-chord)
+(setq key-chord-two-keys-delay 0.1) ; 0.1 is default, 0.05 is an option too
+(key-chord-mode 1)
+(key-chord-define evil-insert-state-map  "l;" 'evil-normal-state)
+#+END_SRC
+
+
+
+#+BEGIN_SRC emacs-lisp
+(require 'god-mode)
+(require 'evil-god-state)
+
+(key-chord-define evil-normal-state-map  "fj" 'evil-execute-in-god-state)
+(key-chord-define evil-insert-state-map  "fj" 'evil-execute-in-god-state)
+(evil-define-key 'normal global-map (kbd ",") 'evil-execute-in-god-state)
+(evil-define-key 'god global-map [escape] 'evil-god-state-bail)
+#+END_SRC
+
+** Global settings
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "H-`") 'next-buffer) ; H is for hyper
+
+#+END_SRC 
+
+* Fonts
+
+Depending on operating system, load different fonts.
+
+#+BEGIN_SRC emacs-lisp
+
+(cond
+   ((string-equal system-type "windows-nt") ; Microsoft Windows
+      (when (member "Liberation Mono" (font-family-list))
+            (add-to-list 'initial-frame-alist '(font . "Consolas-10"))
+            (add-to-list 'default-frame-alist '(font . "Consolas-10"))
+            )
+    )
+    ((string-equal system-type "darwin")   ; Mac OS X
+        (when (member "Liberation Mono" (font-family-list))
+            (add-to-list 'initial-frame-alist '(font . "Input Mono Narrow-12"))
+            (add-to-list 'default-frame-alist '(font . "Input Mono Narrow-12")))
+    )
+    ((string-equal system-type "gnu/linux") ; linux
+        (when (member "Liberation Mono" (font-family-list))
+            (add-to-list 'initial-frame-alist '(font . "Input Mono Narrow-10"))
+            (add-to-list 'default-frame-alist '(font . "Input Mono Narrow-10")))
+        )
+    )
+
+#+END_SRC 
+
+
+* Color themes
+
+~defadvice~ allows us to modify a function defined in another module. Here we extend ~load-theme~ to first disable the currently loaded theme before loading the new theme.
+
+#+BEGIN_SRC emacs-lisp
+(defadvice load-theme
+   (before theme-dont-propagate activate)
+   (mapcar #'disable-theme custom-enabled-themes))
+#+END_SRC
+
+Stop Emacs from asking us each time if themes should be considered safe.
+
+#+BEGIN_SRC emacs-lisp
+(setq custom-safe-themes t)
+#+END_SRC
+
+** Set the actual theme
+
+I've found the Alect theme to be very pleasant for day to day use
+
+#+BEGIN_SRC emacs-lisp
+(setq alect-display-class '((class color) (min-colors 256)))
+(load-theme 'alect-light t)
+#+END_SRC
+
+
+
+
+* GUI vs Terminal
+
+GUI mode settings
+
+#+BEGIN_SRC emacs-lisp 
+(defun set-my-gui ()
+  "Define appropriate settings for GUI envt"
+   ; (require 'nyan-mode)
+   ; (nyan-mode 1)
+    )
+#+END_SRC
+
+
+Terminal mode settings
+
+#+BEGIN_SRC emacs-lisp
+(defun set-my-terminal ()
+  "Define appropriate settings for the terminal."
+  (require 'mouse)
+ ; (disable-theme 'custom-enabled-themes)
+  (load-theme 'alect-dark t)
+  (xterm-mouse-mode t)
+  (global-set-key [mouse-4] '(lambda ()
+                              (interactive)
+                              (scroll-down 1)))
+  (global-set-key [mouse-5] '(lambda ()
+                              (interactive)
+                              (scroll-up 1)))
+  (defun track-mouse (e))
+  (setq mouse-sel-mode t))
+
+#+END_SRC
+
+
+Toggle between the two
+
+#+BEGIN_SRC emacs-lisp
+
+(if window-system
+   (set-my-gui)
+   (set-my-terminal))
+
+#+END_SRC
