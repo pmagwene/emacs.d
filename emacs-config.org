@@ -209,6 +209,8 @@ Use C-c C-x C-v to toggle inline images off/on
 ** Org babel
 
 #+BEGIN_SRC emacs-lisp
+(setq org-confirm-babel-evaluate nil)
+
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
@@ -389,6 +391,7 @@ Set PDF viewer depending on OS:
     "h" 'org-backward-heading-same-level
     "H" 'org-forward-heading-same-level
     "e" 'org-export-dispatch
+    (kbd "TAB") 'org-cycle
 )
 
 #+END_SRC
@@ -459,7 +462,7 @@ The following allows us to enter and leave org-src-mode with ~<leader>'~
     ">" 'org-metaright
     "gk" 'outline-up-heading
     "gj" 'outline-next-visible-heading
-    ;(kbd "TAB") 'org-cycle
+    (kbd "TAB") 'org-cycle
     )
 #+END_SRC
  
@@ -544,7 +547,9 @@ Stop Emacs from asking us each time if themes should be considered safe.
 I've found the Alect theme to be very pleasant for day to day use
 
 #+BEGIN_SRC emacs-lisp
-(setq alect-display-class '((class color) (min-colors 256)))
+(unless window-system
+  (setq alect-display-class '((class color) (min-colors 256))))
+
 (load-theme 'alect-light t)
 #+END_SRC
 
