@@ -10,7 +10,7 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 #+BEGIN_SRC emacs-lisp
 (require 'package)
 (add-to-list 'package-archives
-  '("melpa" . "https://melpa.org/packages/") t)
+  '("melpa" . "http://melpa.org/packages/") t)
 (setq package-enable-at-startup nil)
 (package-initialize)
 #+END_SRC
@@ -24,6 +24,7 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 #+BEGIN_SRC emacs-lisp
 (require 'recentf)
 (recentf-mode 1)
+
 #+END_SRC
 
 
@@ -257,8 +258,15 @@ Use C-c C-x C-v to toggle inline images off/on
 ** Markdown/pandoc mode
 
 #+BEGIN_SRC emacs-lisp
+
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
 (require 'pandoc-mode)
 (add-hook 'markdown-mode-hook 'turn-on-pandoc)
+(add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
 #+END_SRC
 
 
