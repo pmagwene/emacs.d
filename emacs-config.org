@@ -37,6 +37,7 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+
 ** Tabs, line wrap, sentences, and paragraphs  
 
 #+BEGIN_SRC emacs-lisp
@@ -49,6 +50,7 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 (setq indent-line-function 'insert-tab)
 
 #+END_SRC
+
 
 ** Line numbering
 
@@ -86,6 +88,7 @@ Only show the left fringe, and make it small.
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 #+END_SRC
+
 
 ** Set path from shell
 
@@ -132,6 +135,7 @@ Work around a bug with how evil interacts with electric-indent.
 (define-key evil-insert-state-map [remap newline] nil)
 (define-key evil-insert-state-map [remap newline-and-indent] nil)
 #+END_SRC
+
 
 ** Movement by visual lines
 
@@ -289,6 +293,7 @@ Use C-c C-x C-v to toggle inline images off/on
 
 #+END_SRC
 
+
 ** AucTeX
 
 #+BEGIN_SRC emacs-lisp
@@ -325,6 +330,7 @@ Set PDF viewer depending on OS:
 (global-set-key (kbd "C--") 'text-scale-decrease)
 
 #+END_SRC
+
 
 ** Evil leader key bindings
 *** Evil nerd commenter (should come first?)
@@ -367,6 +373,7 @@ Set PDF viewer depending on OS:
     "V" 'clone-indirect-buffer
 )
 #+END_SRC
+
 
 *** Org mode
 
@@ -439,6 +446,7 @@ The following allows us to enter and leave org-src-mode with ~<leader>'~
 
 #+END_SRC
 
+
 *** Org mode related
 
 #+BEGIN_SRC emacs-lisp
@@ -455,6 +463,7 @@ The following allows us to enter and leave org-src-mode with ~<leader>'~
     )
 #+END_SRC
  
+
 ** Keychord and God mode
 
 #+BEGIN_SRC emacs-lisp
@@ -476,12 +485,14 @@ The following allows us to enter and leave org-src-mode with ~<leader>'~
 (evil-define-key 'god global-map [escape] 'evil-god-state-bail)
 #+END_SRC
 
+
 ** Global settings
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "H-`") 'next-buffer) ; H is for hyper
 
 #+END_SRC 
+
 
 * Fonts
 
@@ -527,6 +538,7 @@ Stop Emacs from asking us each time if themes should be considered safe.
 (setq custom-safe-themes t)
 #+END_SRC
 
+
 ** Set the actual theme
 
 I've found the Alect theme to be very pleasant for day to day use
@@ -535,7 +547,6 @@ I've found the Alect theme to be very pleasant for day to day use
 (setq alect-display-class '((class color) (min-colors 256)))
 (load-theme 'alect-light t)
 #+END_SRC
-
 
 
 
@@ -582,3 +593,6 @@ Toggle between the two
    (set-my-terminal))
 
 #+END_SRC
+
+
+

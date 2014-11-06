@@ -1,6 +1,6 @@
 ; suppress annoying messages about symbolic links
 ; to Git tracked files
-(setq vc-follow-symlinks t)
+(setq vc-follow-symlinks nil)
 (setq vc-suppress-confirm t)
 
 ; Get to the actual job of loading the config
