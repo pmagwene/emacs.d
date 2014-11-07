@@ -5,15 +5,27 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 =emacs-config.org= is processed to a Lisp file called =emacs-config.el=, and =emacs-config.el= is what Emacs actually uses to configure settings.
 
 
-* Setup for using package
+* Package system
+
+I've decided to try using [[http://cask.github.io][Cask]] and [[https://github.com/rdallasgray/pallet][pallet]] to maintain my packages:
 
 #+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives
-  '("melpa" . "http://melpa.org/packages/") t)
-(setq package-enable-at-startup nil)
-(package-initialize)
+(require 'cask "~/.cask/cask.el")
+(cask-initialize)
+(require 'pallet)
+(pallet-mode t)
 #+END_SRC
+
+
+# Setup for "standard" package installation
+# #+BEGIN_SRC emacs-lisp
+# ;; (require 'package)
+# ;; (add-to-list 'package-archives
+# ;;   '("melpa" . "http://melpa.org/packages/") t)
+# ;; (setq package-enable-at-startup nil)
+# ;; (package-initialize)
+# #+END_SRC
+
 
   
 
@@ -24,7 +36,6 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 #+BEGIN_SRC emacs-lisp
 (require 'recentf)
 (recentf-mode 1)
-
 #+END_SRC
 
 
@@ -35,6 +46,14 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
 (fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+The default error bell is quite annoying, and even the visual bell is unpleasant. I'm going to experiment with disabling the bell all together.
+
+#+BEGIN_SRC emacs-lisp
+; (setq visible-bell t)
+(setq ring-bell-function 'ignore)
+
 #+END_SRC
 
 
@@ -53,11 +72,9 @@ This is an Org-mode document that serves as my Emacs configuration file.  The st
 
 
 ** Line numbering
-
 #+BEGIN_SRC emacs-lisp
 (require 'relative-line-numbers)
 #+END_SRC 
-
 
 ** Initial settings for frames (windows)
 
@@ -145,6 +162,14 @@ Work around a bug with how evil interacts with electric-indent.
 (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
 (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
 
+#+END_SRC
+
+
+** Modes where Evil should be disabled 
+
+#+BEGIN_SRC emacs-lisp
+(setq evil-emacs-state-modes
+      '(magit-commit-mode magit-diff-mode magit-key-mode magit-log-mode magit-mode magit-reflog-mode magit-show-branches-mode magit-branch-manager-mode magit-stash-mode magit-status-mode magit-wazzup-mode))
 #+END_SRC
 
     
