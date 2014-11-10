@@ -115,6 +115,30 @@ Only show the left fringe, and make it small.
 #+END_SRC
 
 
+* Ido mode 
+
+#+BEGIN_SRC emacs-lisp
+(require 'ido)
+(ido-mode t)
+
+(setq ido-completion-buffer "*Ido Completions*")
+(setq ido-completion-buffer-all-completions t)
+(setq ido-enable-flex-matching t)
+(require 'ido-vertical-mode)
+(ido-vertical-mode 1)
+(require 'ido-ubiquitous)
+(setq ido-everywhere t)
+(setq ido-confirm-unique-completion t)
+(setq ido-ignore-extensions t)
+(setq completion-ignored-extensions 
+      (append completion-ignored-extensions '(".aux" ".synctex.gz" ".fdb_latexmk"
+                                              ".log" ".brf" ".bbl" ".out"
+                                              ".pdf" ".ps")))
+
+
+#+END_SRC
+
+
 * Evil mode
 
 ** Evil-leader settings
@@ -143,8 +167,17 @@ First we setup ~evil-leader~ mode.  I've found that the <SPC> (spacebar) makes a
 (require 'evil)
 (setq evil-want-fine-undo t)
 (setq evil-cross-lines t)
+(setq evil-want-C-i-jump nil)
 (evil-mode 1)
 #+END_SRC
+
+
+Invoke IDO when using :e and :b
+#+BEGIN_SRC emacs-lisp
+(define-key evil-ex-map "b " 'ido-switch-buffer)
+(define-key evil-ex-map "e " 'ido-find-file)
+#+END_SRC
+
 
 Work around a bug with how evil interacts with electric-indent.
 
@@ -162,6 +195,11 @@ Work around a bug with how evil interacts with electric-indent.
 (define-key evil-motion-state-map (kbd "<remap> <evil-next-line>") 'evil-next-visual-line)
 (define-key evil-motion-state-map (kbd "<remap> <evil-previous-line>") 'evil-previous-visual-line)
 
+#+END_SRC
+
+Use TAB as per emacs bindings:
+#+BEGIN_SRC emacs-lisp
+(define-key evil-motion-state-map "\t" nil)
 #+END_SRC
 
 
@@ -265,8 +303,38 @@ Use C-c C-x C-v to toggle inline images off/on
 (global-evil-matchit-mode 1)
 
 #+END_SRC
- 
 
+
+* YASnippet 
+
+#+BEGIN_SRC emacs-lisp
+(require 'yasnippet)
+(yas-global-mode 1)
+#+END_SRC
+
+Deal with conflicts between orgmode and YASnippet:
+
+#+BEGIN_SRC emacs-lisp
+
+(add-hook 'org-mode-hook
+          (lambda ()
+          (org-set-local 'yas/trigger-key [tab])
+          (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+
+#+END_SRC
+
+
+* Flyspell
+
+#+BEGIN_SRC emacs-lisp
+(dolist (hook '(text-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode 1))))
+(dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode -1))))
+
+#+END_SRC
+
+ 
 * OS specific stuff 
 
 ** Mac specific
@@ -305,6 +373,14 @@ Use C-c C-x C-v to toggle inline images off/on
 
 #+BEGIN_SRC emacs-lisp
 (require 'python)
+#+END_SRC
+
+Elpy mode:
+#+BEGIN_SRC emacs-lisp
+(require 'elpy)
+;(elpy-enable)
+(remove-hook 'elpy-modules 'elpy-module-highlight-indentation)
+
 #+END_SRC
 
 
@@ -487,7 +563,7 @@ The following allows us to enter and leave org-src-mode with ~<leader>'~
     ">" 'org-metaright
     "gk" 'outline-up-heading
     "gj" 'outline-next-visible-heading
-    (kbd "TAB") 'org-cycle
+    ;(kbd "TAB") 'org-cycle
     )
 #+END_SRC
  
