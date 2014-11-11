@@ -110,8 +110,9 @@ Only show the left fringe, and make it small.
 ** Set path from shell
 
 #+BEGIN_SRC emacs-lisp
-(require 'exec-path-from-shell)
-(exec-path-from-shell-initialize)
+(unless (string-equal system-type "windows-nt")
+  (require 'exec-path-from-shell)
+  (exec-path-from-shell-initialize))
 #+END_SRC
 
 
@@ -132,8 +133,7 @@ Only show the left fringe, and make it small.
 (setq ido-ignore-extensions t)
 (setq completion-ignored-extensions 
       (append completion-ignored-extensions '(".aux" ".synctex.gz" ".fdb_latexmk"
-                                              ".log" ".brf" ".bbl" ".out"
-                                              ".pdf" ".ps")))
+                                              ".log" ".brf" ".bbl" ".out")))
 
 
 #+END_SRC
