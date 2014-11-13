@@ -251,8 +251,15 @@ Use C-c C-x C-v to toggle inline images off/on
 (setq org-agenda-files (list "~/Dropbox/org-files/work.org"
                              "~/Dropbox/org-files/home.org"
                              "~/Dropbox/org-files/refile.org"))
-#+END_SRC 
+#+END_SRC
 
+** To Do
+
+#+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords
+       '((sequence "TODO" "WAITING" "|" "DONE" "DELEGATED")))
+
+#+END_SRC 
 
 ** Capture 
 
