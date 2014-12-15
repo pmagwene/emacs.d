@@ -72,9 +72,11 @@ The default error bell is quite annoying, and even the visual bell is unpleasant
 
 
 ** Line numbering
+
 #+BEGIN_SRC emacs-lisp
 (require 'relative-line-numbers)
 #+END_SRC 
+
 
 ** Initial settings for frames (windows)
 
